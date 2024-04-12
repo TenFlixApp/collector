@@ -33,7 +33,7 @@ func main() {
 	router.POST("/metrics", routes.MetricsRoute)
 
 	srv := &http.Server{
-		Addr:    ":8080",
+		Addr:    ":8089",
 		Handler: router,
 	}
 
