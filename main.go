@@ -30,7 +30,9 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/ping", routes.PingRoute)
-	router.POST("/metrics", routes.MetricsRoute)
+
+	router.GET("/metrics/:collection", routes.GetMetricsRoute)
+	router.POST("/metrics/:collection", routes.PushMetricsRoute)
 
 	srv := &http.Server{
 		Addr:    ":8089",
@@ -44,6 +46,8 @@ func main() {
 			log.Fatalf("listen: %s\n", err)
 		}
 	}()
+
+	log.Println("Server started on port " + srv.Addr)
 
 	// Listen for the interrupt signal.
 	<-ctx.Done()

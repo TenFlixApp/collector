@@ -1,13 +1,13 @@
 package data
 
 import (
-	"context"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-func PushMetrics(collection string, data interface{}) error {
-	_, err := client.Database("metrics").Collection(collection).InsertOne(context.Background(), data)
-	if err != nil {
-		return err
-	}
-	return nil
+func GetMetrics(collection string) ([]bson.M, error) {
+	return FindData(collection, bson.D{})
+}
+
+func PushMetrics(collection string, data bson.D) error {
+	return InsertData(collection, data)
 }
