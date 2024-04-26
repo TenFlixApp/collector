@@ -2,11 +2,12 @@ package data
 
 import (
 	"context"
+	"log"
+	"os"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"log"
-	"os"
 )
 
 var client *mongo.Client
@@ -37,6 +38,19 @@ func FindData(collectionName string, filter bson.D) (results []bson.M, err error
 	cursor, err := client.Database("metrics").Collection(collectionName).Find(context.Background(), filter)
 	if err != nil {
 		log.Println("Error in Find: ", err)
+		return nil, err
+	}
+	if err = cursor.All(context.Background(), &results); err != nil {
+		log.Println("Error in cursor.All: ", err)
+		return nil, err
+	}
+	return results, nil
+}
+
+func AggregateData(collectionName string, pipeline bson.A) (results []bson.M, err error) {
+	cursor, err := client.Database("metrics").Collection(collectionName).Aggregate(context.Background(), pipeline)
+	if err != nil {
+		log.Println("Error in Aggregate: ", err)
 		return nil, err
 	}
 	if err = cursor.All(context.Background(), &results); err != nil {

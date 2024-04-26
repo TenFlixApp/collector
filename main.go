@@ -5,13 +5,14 @@ import (
 	"collector/routes"
 	"context"
 	"errors"
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -32,6 +33,9 @@ func main() {
 	router.GET("/ping", routes.PingRoute)
 
 	router.GET("/metrics/:collection", routes.GetMetricsRoute)
+	router.POST("/metrics/:collection/filter", routes.FilterMetricsRoute)
+	router.POST("/metrics/:collection/aggregate", routes.AggregateMetricsRoute)
+
 	router.POST("/metrics/:collection", routes.PushMetricsRoute)
 
 	srv := &http.Server{
