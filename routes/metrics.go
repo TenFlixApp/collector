@@ -3,9 +3,12 @@ package routes
 import (
 	"collector/data"
 	"collector/helpers"
+	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func GetMetricsRoute(c *gin.Context) {
@@ -15,10 +18,40 @@ func GetMetricsRoute(c *gin.Context) {
 		return
 	}
 
-	metrics, err := data.GetMetrics(collection)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	var (
+		metrics []bson.M
+		err     error
+		filter  = c.Query("filter")
+	)
+	if filter != "" {
+		var parsedJson map[string]interface{}
+		err = json.Unmarshal([]byte(filter), &parsedJson)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": fmt.Sprintf("invalid filter: %s", err.Error())})
+			return
+		}
+
+		bsonFilter, err := helpers.ToBsonD(parsedJson)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+
+		metrics, err = data.GetFilteredMetrics(collection, bsonFilter)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	} else {
+		metrics, err = data.GetMetrics(collection)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			return
+		}
+	}
+
+	if metrics == nil {
+		metrics = []bson.M{}
 	}
 
 	c.JSON(http.StatusOK, gin.H{"metrics": metrics})
