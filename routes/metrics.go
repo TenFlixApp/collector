@@ -23,7 +23,7 @@ func GetMetricsRoute(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"metrics": metrics})
+	c.JSON(http.StatusOK, metrics)
 }
 
 func FilterMetricsRoute(c *gin.Context) {
@@ -52,7 +52,7 @@ func FilterMetricsRoute(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"metrics": metrics})
+	c.JSON(http.StatusOK, metrics)
 }
 
 func AggregateMetricsRoute(c *gin.Context) {
@@ -81,7 +81,7 @@ func AggregateMetricsRoute(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"metrics": metrics})
+	c.JSON(http.StatusOK, metrics)
 }
 
 func PushMetricsRoute(c *gin.Context) {
