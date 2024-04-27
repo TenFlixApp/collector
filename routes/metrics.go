@@ -93,7 +93,6 @@ func PushMetricsRoute(c *gin.Context) {
 
 	var form map[string]interface{}
 
-	// Bind form data
 	if err := c.ShouldBind(&form); err != nil {
 		c.String(http.StatusBadRequest, fmt.Sprintf("err: %s", err.Error()))
 		return
