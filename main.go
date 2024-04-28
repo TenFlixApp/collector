@@ -24,8 +24,6 @@ func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 
-	data.ConnectToDB()
-
 	router := gin.Default()
 
 	router.GET("/ping", routes.PingRoute)

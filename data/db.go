@@ -10,27 +10,24 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var client *mongo.Client
-
-func ConnectToDB() {
+func ConnectToDB() *mongo.Client {
 	clientOptions := options.Client().ApplyURI(os.Getenv("DB_CONN_STRING"))
 	client, err := mongo.Connect(context.Background(), clientOptions)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	err = client.Ping(context.Background(), nil)
-
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	log.Println("Connected to MongoDB!")
+	return client
 }
 
 func FindData(collectionName string, filter bson.D) (results []bson.M, err error) {
-	cursor, err := client.Database("metrics").Collection(collectionName).Find(context.Background(), filter)
+	cursor, err := ConnectToDB().Database("metrics").Collection(collectionName).Find(context.Background(), filter)
 	if err != nil {
 		log.Println("Error in Find: ", err)
 		return nil, err
@@ -43,7 +40,7 @@ func FindData(collectionName string, filter bson.D) (results []bson.M, err error
 }
 
 func AggregateData(collectionName string, pipeline bson.A) (results []bson.M, err error) {
-	cursor, err := client.Database("metrics").Collection(collectionName).Aggregate(context.Background(), pipeline)
+	cursor, err := ConnectToDB().Database("metrics").Collection(collectionName).Aggregate(context.Background(), pipeline)
 	if err != nil {
 		log.Println("Error in Aggregate: ", err)
 		return nil, err
@@ -55,8 +52,8 @@ func AggregateData(collectionName string, pipeline bson.A) (results []bson.M, er
 	return results, nil
 }
 
-func InsertData(collectionName string, data bson.D) error {
-	_, err := client.Database("metrics").Collection(collectionName).InsertOne(context.Background(), data)
+func InsertData(collectionName string, data bson.D) (err error) {
+	_, err = ConnectToDB().Database("metrics").Collection(collectionName).InsertOne(context.Background(), data)
 	if err != nil {
 		return err
 	}
